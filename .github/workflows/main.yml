@@ -3,7 +3,6 @@ on:
   push:
     branches:
     - master
-    - release/*
   pull_request:
     branches:
     - master
@@ -11,6 +10,24 @@ on:
     building_job:
       runs-on: ubuntu-latest
         steps:
-          - uses: actions/checkout@v3
+          - name: Checkout code
+            uses: actions/checkout@v2
+          
+          - name: Install CMake
+            run : |
+              sudo apt-get update
+              sudo apt-get install -y cmake
+
+          - name: Build with CMake
+            run: |
+              mkdir -p build
+              cd build
+              cmake ..
+              build
+          - name: Upload artifact
+            uses: actions/upload-artifact@v2
+            with:
+              name: myapp
+              path: build/myapp
           
       
