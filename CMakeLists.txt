@@ -7,13 +7,13 @@ add_executable(FactoryMethod FactoryMethod.cpp)
 
 
 
-set(GTEST_ROOT third-party/gtest/googletest)
-set(GMOCK_ROOT third-party/gtest/googlemock)
+set(GTEST_ROOT gtest/googletest)
+set(GMOCK_ROOT gtest/googlemock)
 
 add_subdirectory(${GTEST_ROOT} gtest)
-add_subdirectory(${GMOCK_ROOT} gmock)
+target_link_libraries(RK2 \${PROJECT_NAME} gtest_main)
 
-target_link_libraries(RK2 gtest gmock)
+include_directories(\${CMAKE_CURRENT_SOURCE_DIR}/include)
 
 enable_testing()
 add_test(NAME check COMMAND check)

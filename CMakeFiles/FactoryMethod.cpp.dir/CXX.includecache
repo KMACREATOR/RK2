@@ -1,0 +1,18 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/home/computer/KMACREATOR/workspace/projects/design-patterns-cpp/factory-method/FactoryMethod.cpp
+iostream
+-
+string
+-
+gtest/gtest.h
+-
+gmock/gmock.h
+-
+
