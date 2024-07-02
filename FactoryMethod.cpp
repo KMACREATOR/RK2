@@ -12,14 +12,14 @@
 #include <string>
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
+
+using ::testing::AtLeast;
+
 /*
  * Product
  * products implement the same interface so that the classes can refer
  * to the interface not the concrete product
  */
-
-using ::testing::AtLeast;
-
 class Product
 {
 public:
@@ -29,22 +29,19 @@ public:
   // ...
 };
 
-
-//MockProduct для класса Mock
+// MockProduct для класса Mock
 class MockProduct : public Product {
-	MOCK_METHOD(std::string, getName(), (), (override));
+public:
+  MOCK_METHOD(std::string, getName, (), (override));
 };
 
-//сразу же тестируем
-
+// сразу же тестируем
 TEST(ProductTest, PrintingCheck){
-	MockProduct prod;
-	prod.getName();
-	EXPECT_CALL(prod, getName())
-		.Times(AtLeast(1));
+  MockProduct prod;
+  EXPECT_CALL(prod, getName())
+    .Times(AtLeast(1));
+  prod.getName();
 }
-
-
 
 /*
  * Concrete Product
@@ -55,7 +52,7 @@ class ConcreteProductA : public Product
 public:
   ~ConcreteProductA() {}
 
-  std::string getName()
+  std::string getName() override
   {
     return "type A";
   }
@@ -63,8 +60,8 @@ public:
 };
 
 TEST(TestProducts, ProductA){
-	ConcreteProductA PA1;
-	EXPECT_STREQ(PA1.getName, "type A");
+  ConcreteProductA PA1;
+  EXPECT_STREQ(PA1.getName().c_str(), "type A");
 }
 
 /*
@@ -76,7 +73,7 @@ class ConcreteProductB : public Product
 public:
   ~ConcreteProductB() {}
   
-  std::string getName()
+  std::string getName() override
   {
     return "type B";
   }
@@ -96,18 +93,18 @@ public:
   virtual Product* createProductA() = 0;
   virtual Product* createProductB() = 0;
   
-  virtual void removeProduct( Product *product ) = 0;
+  virtual void removeProduct(Product* product) = 0;
   
   // ...
 };
 
-//MockCreator класс для Creator
-
+// MockCreator класс для Creator
 class MockCreator : public Creator {
-	MOCKMETHOD(Product*, createProductA (), (override));
-		
+public:
+  MOCK_METHOD(Product*, createProductA, (), (override));
+  MOCK_METHOD(Product*, createProductB, (), (override));
+  MOCK_METHOD(void, removeProduct, (Product* product), (override));
 };
-
 
 /*
  * Concrete Creator
@@ -120,43 +117,45 @@ class ConcreteCreator : public Creator
 public:
   ~ConcreteCreator() {}
   
-  Product* createProductA()
+  Product* createProductA() override
   {
     return new ConcreteProductA();
   }
   
-  Product* createProductB()
+  Product* createProductB() override
   {
     return new ConcreteProductB();
   }
   
-  void removeProduct( Product *product )
+  void removeProduct(Product* product) override
   {
     delete product;
   }
   // ...
 };
 
-//тестируем ConcreteCreator
-TEST (ConcreteTests, CreatorTets){
-	ConcreteCreator concreator1;
-	ConcreteCreator concreator2;	
-
+// тестируем ConcreteCreator
+TEST(ConcreteTests, CreatorTest){
+  ConcreteCreator creator;
+  Product* p1 = creator.createProductA();
+  EXPECT_NE(p1, nullptr);
+  creator.removeProduct(p1);
 }
 
-int main()
+int main(int argc, char** argv)
 {
-  Creator *creator = new ConcreteCreator();
-  
-  Product *p1 = creator->createProductA();
-  std::cout << "Product: " << p1->getName() << std::endl;
-  creator->removeProduct( p1 );
-  
-  Product *p2 = creator->createProductB();
-  std::cout << "Product: " << p2->getName() << std::endl;
-  creator->removeProduct( p2 );
-  
   ::testing::InitGoogleTest(&argc, argv);
+
+  Creator* creator = new ConcreteCreator();
+  
+  Product* p1 = creator->createProductA();
+  std::cout << "Product: " << p1->getName() << std::endl;
+  creator->removeProduct(p1);
+  
+  Product* p2 = creator->createProductB();
+  std::cout << "Product: " << p2->getName() << std::endl;
+  creator->removeProduct(p2);
+  
   delete creator;
   return RUN_ALL_TESTS();
 }
